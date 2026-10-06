@@ -1,0 +1,10 @@
+# One-off analysis harness and generated logs — not part of the deliverable
+tools/
+analyze_output.txt
+*.log
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
