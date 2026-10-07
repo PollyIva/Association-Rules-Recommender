@@ -1,6 +1,7 @@
 # One-off analysis harness and generated logs — not part of the deliverable
 tools/
 analyze_output.txt
+test.txt
 *.log
 
 # OS / editor noise
