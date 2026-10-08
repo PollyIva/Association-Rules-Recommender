@@ -5,8 +5,9 @@ test.txt
 report_print.html
 *.log
 
-# Report sources and evidence stay local; the submission carries report.pdf only
+# Report sources and old report stay local; only Polina_Ivanilova_a04_report.pdf is submitted
 report.md
+report.pdf
 *.PNG
 baseline_tests.txt
 useful rule/
