@@ -25,7 +25,7 @@
  * readout, the DOM wiring, all formatting and rendering helpers, and the test
  * harness. Leave the provided code as-is and implement only the stubs above.
  *
- * Metrics (see week4/readme.md for definitions):
+ * Metrics (see assignment.md for definitions):
  *   support(A -> B)    = count(A union B) / N
  *   confidence(A -> B) = count(A union B) / count(A)
  *   lift(A -> B)       = confidence(A -> B) / (count(B) / N)
@@ -842,6 +842,72 @@ function renderResults(rules, index, container) {
       }
     });
   });
+
+  // Sortable column headers. Sorting only reorders the existing <tr> elements,
+  // so each row keeps its data-rule-index and the detail panel keeps working.
+  // Numeric columns start descending on first click, text columns ascending.
+  const table = target.querySelector("table.rules-table");
+  const tbody = table && table.tBodies[0];
+  const headerRow = table && table.tHead && table.tHead.rows[0];
+  if (tbody && headerRow) {
+    const headers = Array.from(headerRow.cells);
+    const numericCols = new Set([2, 3, 4, 5, 6, 7]);
+    const rows = Array.from(tbody.rows);
+    const state = { col: -1, dir: 1 };
+
+    const readValue = (row, col) => {
+      const text = row.cells[col].textContent.trim();
+      if (numericCols.has(col)) {
+        const parsed = parseFloat(text.replace("%", ""));
+        return Number.isFinite(parsed) ? parsed : Number.NEGATIVE_INFINITY;
+      }
+      return text;
+    };
+
+    const showIndicator = () => {
+      headers.forEach((th, i) => {
+        if (th.dataset.label === undefined) th.dataset.label = th.textContent.trim();
+        th.textContent =
+          i === state.col
+            ? th.dataset.label + (state.dir === 1 ? " ▲" : " ▼")
+            : th.dataset.label;
+        th.style.cursor = "pointer";
+        th.style.userSelect = "none";
+        th.setAttribute(
+          "aria-sort",
+          i === state.col ? (state.dir === 1 ? "ascending" : "descending") : "none",
+        );
+      });
+    };
+
+    headers.forEach((th, col) => {
+      th.addEventListener("click", () => {
+        if (state.col === col) {
+          state.dir = -state.dir;
+        } else {
+          state.col = col;
+          state.dir = numericCols.has(col) ? -1 : 1;
+        }
+        const sorted = rows.slice().sort((a, b) => {
+          const va = readValue(a, col);
+          const vb = readValue(b, col);
+          let cmp;
+          if (typeof va === "string" && typeof vb === "string") {
+            cmp = va.localeCompare(vb);
+          } else {
+            cmp = Number(va) - Number(vb);
+          }
+          if (cmp === 0) {
+            cmp = Number(a.dataset.ruleIndex) - Number(b.dataset.ruleIndex);
+          }
+          return cmp * state.dir;
+        });
+        sorted.forEach((row) => tbody.appendChild(row));
+        showIndicator();
+      });
+    });
+    showIndicator();
+  }
 }
 
 /**
